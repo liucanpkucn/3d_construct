@@ -484,9 +484,36 @@ const isPointInPolygon = (point, vs) => {
     });
     const floorMaterial = new THREE.MeshStandardMaterial({ color: 0xeeeeee, side: THREE.DoubleSide });
 
+    // Calculate Bounding Box of ACTUAL CONTENT (Walls)
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    let hasWalls = false;
+
+    contoursData.forEach(c => {
+        if (!c.isWall) return;
+        hasWalls = true;
+        c.points.forEach(p => {
+            if (p[0] < minX) minX = p[0];
+            if (p[0] > maxX) maxX = p[0];
+            if (p[1] < minY) minY = p[1];
+            if (p[1] > maxY) maxY = p[1];
+        });
+    });
+
+    if (!hasWalls) {
+        setStatus('未检测到有效墙体数据。');
+        setIsProcessing(false);
+        return;
+    }
+
     const scale = 0.05; 
-    const offsetX = -imageDimensions.width * scale / 2;
-    const offsetZ = -imageDimensions.height * scale / 2;
+    // Center based on CONTENT, not Image Size
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+    const contentWidth = maxX - minX;
+    const contentHeight = maxY - minY;
+
+    const offsetX = -centerX * scale;
+    const offsetZ = -centerY * scale;
 
     let totalWalls = 0;
 
@@ -552,10 +579,16 @@ const isPointInPolygon = (point, vs) => {
             }
         });
 
-        const floorGeo = new THREE.PlaneGeometry(imageDimensions.width * scale * 2, imageDimensions.height * scale * 2);
+        // Floor based on content size + padding
+        const floorPadding = 5; // Extra space around
+        const floorGeo = new THREE.PlaneGeometry(
+            contentWidth * scale + floorPadding * 2, 
+            contentHeight * scale + floorPadding * 2
+        );
         const floorMesh = new THREE.Mesh(floorGeo, floorMaterial);
         floorMesh.rotation.x = -Math.PI / 2;
         floorMesh.position.y = floorY;
+        // Floor is already centered at 0,0 because geometry is centered and we don't offset it (content is centered at 0,0)
         floorMesh.receiveShadow = true;
         tempGroup.add(floorMesh);
     }
@@ -570,19 +603,12 @@ const isPointInPolygon = (point, vs) => {
     const wrapper = new THREE.Group();
     wrapper.name = 'generated_model_wrapper';
     
-    // Center the model
-    const rawBox = new THREE.Box3().setFromObject(tempGroup);
-    const rawCenter = rawBox.getCenter(new THREE.Vector3());
-    tempGroup.position.x = -rawCenter.x;
-    tempGroup.position.z = -rawCenter.z;
-    tempGroup.position.y = -rawBox.min.y;
-
+    // Model is already centered by vertex manipulation, no need to shift group
     wrapper.add(tempGroup);
-    
-    const axesHelper = new THREE.AxesHelper(50);
-    wrapper.add(axesHelper);
-    
     sceneRef.current.add(wrapper);
+    
+    // Force Matrix Update
+    tempGroup.updateMatrixWorld(true);
     
     // 4. Update Camera View
     resetView();
@@ -612,17 +638,28 @@ const isPointInPolygon = (point, vs) => {
       const center = box.getCenter(new THREE.Vector3());
       const size = box.getSize(new THREE.Vector3());
       const maxDim = Math.max(size.x, size.y, size.z);
+      
       if (maxDim > 0 && maxDim < Infinity) {
         const fov = cameraRef.current.fov * (Math.PI / 180);
-        const distance = Math.max(maxDim / (2 * Math.tan(fov / 2)), 50);
-        const cameraZ = distance * 1.5;
-        cameraRef.current.position.set(center.x + cameraZ, center.y + cameraZ, center.z + cameraZ);
+        // Calculate optimal distance to fit object in view
+        // Add 20% padding (multiply by 1.2)
+        const cameraDist = Math.abs(maxDim / 2 / Math.tan(fov / 2)) * 1.5;
+        
+        // Ensure not too close, not too far, but relative to size
+        const dist = Math.max(cameraDist, 5); 
+
+        // Position camera at an angle
+        const offset = dist / Math.sqrt(3); // distribute distance to x, y, z
+        
+        cameraRef.current.position.set(center.x + offset, center.y + offset, center.z + offset);
         cameraRef.current.lookAt(center);
+        
         controlsRef.current.target.copy(center);
         controlsRef.current.update();
         return;
       }
     }
+    // Default fallback
     cameraRef.current.position.set(50, 50, 50);
     cameraRef.current.lookAt(0, 0, 0);
     controlsRef.current.target.set(0, 0, 0);
