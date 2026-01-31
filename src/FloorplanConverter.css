@@ -1,0 +1,248 @@
+/* FloorplanConverter.css */
+
+/* Layout */
+.fpc-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: #333;
+  background: #f5f5f5;
+}
+
+/* Left Sidebar */
+.fpc-sidebar {
+  width: 320px; /* Slightly narrower for "simple" look */
+  min-width: 320px;
+  background: #ffffff;
+  border-right: 1px solid #eaeaea;
+  display: flex;
+  flex-direction: column;
+  z-index: 20;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+}
+
+.fpc-sidebar-content {
+  padding: 20px;
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Sections */
+.fpc-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fpc-section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  margin: 0 0 5px 0;
+  letter-spacing: 0.5px;
+}
+
+.fpc-row {
+  display: flex;
+  gap: 10px;
+}
+
+.fpc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+.fpc-field label {
+  font-size: 12px;
+  color: #555;
+  font-weight: 500;
+}
+
+/* Inputs */
+input[type="text"],
+input[type="number"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+  border-color: #1890ff;
+  outline: none;
+}
+
+input[type="range"] {
+  width: 100%;
+  height: 4px;
+  background: #e1e1e1;
+  border-radius: 2px;
+  appearance: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #1890ff;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* Buttons */
+.fpc-btn-upload {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: #f0f7ff;
+  border: 1px dashed #1890ff;
+  border-radius: 6px;
+  color: #1890ff;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+.fpc-btn-upload:hover {
+  background: #e6f7ff;
+}
+
+.fpc-btn-small {
+  flex: 1;
+  padding: 6px 10px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.fpc-btn-small:hover {
+  border-color: #999;
+  color: #333;
+}
+
+.fpc-btn-primary {
+  width: 100%;
+  padding: 12px;
+  background: #1890ff;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 2px 6px rgba(24, 144, 255, 0.2);
+}
+.fpc-btn-primary:hover {
+  background: #107ceb;
+}
+.fpc-btn-primary:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.fpc-btn-secondary {
+  flex: 1;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.fpc-btn-secondary:hover {
+  border-color: #999;
+  color: #333;
+}
+
+.fpc-link-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+  border-radius: 6px;
+  color: #52c41a;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.fpc-link-btn:hover {
+  background: #d9f7be;
+}
+
+/* Canvas */
+.fpc-canvas-wrapper {
+  flex: 1;
+  background: #f0f2f5;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
+}
+.fpc-canvas-wrapper canvas {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Status */
+.fpc-status-text {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.fpc-status-text::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: #52c41a;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.fpc-error-text {
+  font-size: 12px;
+  color: #ff4d4f;
+  background: #fff1f0;
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid #ffa39e;
+}
+
+/* Right Panel */
+.fpc-3d-view {
+  flex: 1;
+  background: #1a1a1a;
+  position: relative;
+  overflow: hidden;
+}
